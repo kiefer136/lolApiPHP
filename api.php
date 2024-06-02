@@ -4,15 +4,33 @@
 //-------------------------------------------------------------------------------------
 // Set up connection to local database
 function establishDBConnection() {
-    $connect = mysqli_connect(
-        "lolchallenges-kiefsjohn-d189.g.aivencloud.com", 
-        "avnadmin", 
-        "AVNS_dETOfa9mXehSTXADIOn", 
-        "lolchallenges", 
-        22055
-    );
-    var_dump($connect);
-    return $connect;
+    // $connect = mysqli_connect(
+    //     "lolchallenges-kiefsjohn-d189.g.aivencloud.com", 
+    //     "avnadmin", 
+    //     "AVNS_dETOfa9mXehSTXADIOn", 
+    //     "lolchallenges", 
+    //     22055
+    // );
+    $uri = "mysql://avnadmin:AVNS_dETOfa9mXehSTXADIOn@lolchallenges-kiefsjohn-d189.g.aivencloud.com:22055/defaultdb?ssl-mode=REQUIRED";
+
+    $fields = parse_url($uri);
+
+    // build the DSN including SSL settings
+    $conn = "mysql:";
+    $conn .= "host=" . $fields["host"];
+    $conn .= ";port=" . $fields["port"];;
+    $conn .= ";dbname=lolchallenges";
+    $conn .= ";sslmode=verify-ca;sslrootcert=ca.pem";
+
+    try {
+        $db = new PDO($conn, $fields["user"], $fields["pass"]);
+        $stmt = $db->query("SELECT VERSION()");
+        print($stmt->fetch()[0]);
+        return $stmt;
+    } catch (Exception $e) {
+        echo "Error: " . $e->getMessage();
+    }
+    // var_dump($connect);
 }
 
 // Make request to RIOTAPI with url
