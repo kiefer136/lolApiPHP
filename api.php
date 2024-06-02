@@ -11,7 +11,7 @@ function establishDBConnection() {
         "lolchallenges", 
         5432
     );
-
+    var_dump($connect);
     return $connect;
 }
 
