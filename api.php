@@ -177,8 +177,6 @@ if (isset($_POST['action'])) {
                     return getChampions($name, $database);
                 case 'queryMatchInfo':
                     return getMatchInfo($database, $summonerPUUID, $name);
-                case 'setDbStructure':
-                    setDbStructure($database);
             }
         } else {
             return summonerLookup($database, $name, $tagLine);
@@ -219,28 +217,5 @@ function summonerLookup($database,$name, $tagLine) {
         lookupAndSaveAccount($database, $name, $tagLine);
     }
     exit;
-}
-function setDbStructure($database) {
-    mysqli_query($database,  
-    "");
-    
-    mysqli_query($database, 
-    "DROP TABLE IF EXISTS `accountschampions`;
-    CREATE TABLE IF NOT EXISTS `accountschampions` (
-      `championName` varchar(30) NOT NULL,
-      `puuid` varchar(80) NOT NULL,
-      PRIMARY KEY (`championName`,`puuid`)
-    ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
-    );
-    
-    mysqli_query($database,
-    "DROP TABLE IF EXISTS `matches`;
-    CREATE TABLE IF NOT EXISTS `matches` (
-      `puuid` varchar(80) NOT NULL,
-      `matchID` varchar(60) NOT NULL,
-      PRIMARY KEY (`matchID`,`puuid`)
-    ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-    COMMIT;"
-    );
 }
 ?>
