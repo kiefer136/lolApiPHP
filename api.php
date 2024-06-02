@@ -5,11 +5,11 @@
 // Set up connection to local database
 function establishDBConnection() {
     $connect = mysqli_connect(
-        "postgres://lolchallenges_user:sVJRM5Vdc0mkV8jAomNi7wb4EHcBdd2m@dpg-cpe2jd7109ks73eom1k0-a/lolchallenges", 
-        "rlolchallenges_useroot", 
-        "sVJRM5Vdc0mkV8jAomNi7wb4EHcBdd2m", 
+        "lolchallenges-kiefsjohn-d189.g.aivencloud.com", 
+        "avnadmin", 
+        "AVNS_dETOfa9mXehSTXADIOn", 
         "lolchallenges", 
-        5432
+        22055
     );
     var_dump($connect);
     return $connect;
@@ -222,13 +222,7 @@ function summonerLookup($database,$name, $tagLine) {
 }
 function setDbStructure($database) {
     mysqli_query($database,  
-    "DROP TABLE IF EXISTS `accounts`;
-    CREATE TABLE IF NOT EXISTS `accounts` (
-      `puuid` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-      `name` varchar(30) DEFAULT NULL,
-      `tagLine` varchar(10) DEFAULT NULL,
-      PRIMARY KEY (`puuid`)
-    ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+    "");
     
     mysqli_query($database, 
     "DROP TABLE IF EXISTS `accountschampions`;
