@@ -4,7 +4,7 @@
 //-------------------------------------------------------------------------------------
 // Set up connection to local database
 function establishDBConnection() {
-    $connect = mysqli_connect("localhost:3306", "root", "", "lolchallenges");
+    $connect = mysqli_connect("dpg-cpe2jd7109ks73eom1k0-a", "rlolchallenges_useroot", "sVJRM5Vdc0mkV8jAomNi7wb4EHcBdd2m", "lolchallenges", 5432);
 
     return $connect;
 }
