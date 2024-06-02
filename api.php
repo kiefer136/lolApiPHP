@@ -1,32 +1,23 @@
 <?php
-
+ini_set('max_execution_time', '300');
 //START FUNCTIONS
 //-------------------------------------------------------------------------------------
 // Set up connection to local database
 function establishDBConnection() {
+    $connect = mysqli_connect(
+        "sql206.infinityfree.com", 
+        "if0_36659344", 
+        "D46rc91qUZN", 
+        "if0_36659344_lolchallenges", 
+        3306
+    );
     // $connect = mysqli_connect(
-    //     "lolchallenges-kiefsjohn-d189.g.aivencloud.com", 
-    //     "avnadmin", 
-    //     "AVNS_dETOfa9mXehSTXADIOn", 
+    //     "localhost:3306", 
+    //     "root", 
+    //     "", 
     //     "lolchallenges", 
-    //     22055
     // );
-    $uri = "mysql://avnadmin:AVNS_dETOfa9mXehSTXADIOn@lolchallenges-kiefsjohn-d189.g.aivencloud.com:22055/defaultdb?ssl-mode=REQUIRED";
-
-    $fields = parse_url($uri);
-
-    // build the DSN including SSL settings
-    $conn = "mysql:";
-    $conn .= "host=" . $fields["host"];
-    $conn .= ";port=" . $fields["port"];;
-    $conn .= ";dbname=lolchallenges";
-    $conn .= ";sslmode=verify-ca;sslrootcert=ca.pem";
-
-    $db = new PDO($conn, $fields["user"], $fields["pass"]);
-    $stmt = $db->query("SELECT VERSION()");
-    print($stmt->fetch()[0]);
-    var_dump($db);
-    return $db;
+    return $connect;
 }
 
 // Make request to RIOTAPI with url
@@ -120,15 +111,18 @@ function queryMatchsHistoryInfo($database, $matchIDs, $summonerPUUID) {
     $baseUrl = "https://americas.api.riotgames.com/";
     $count = 1;
     foreach($matchIDs as $matchID) {
-        echo $matchID;
+        $matchIDIdentifier = $matchID['matchID'];
         if ($count > 400) {
             exit();
         }
-        $route = "lol/match/v5/matches/$matchID";
+        $route = "lol/match/v5/matches/$matchIDIdentifier";
         $requestAccountUrl = $baseUrl.$route;
         $api_result = CallAPI($requestAccountUrl);
         usleep(650000);
         if (!empty(($api_result->info))) {
+            //Mark match as ranQuery = true after executing
+            $sqlInsert = "UPDATE matches SET ranQuery = 1 WHERE puuid = '$summonerPUUID' AND matchID = '$matchIDIdentifier'";
+            $database->query($sqlInsert);
             $obj = array_column($api_result->info->participants, null, 'puuid')[$summonerPUUID] ?? false;
             $placement = $obj->placement ? $obj->placement : 0;
             $champion = $obj->championName ? $obj->championName : "null";
@@ -165,6 +159,25 @@ function getAccount($database, $name) {
         return ['puuid'=>$resultRow['puuid'], 'name'=>$resultRow['name']];
     }
 }
+// GET LEADERBOARDS
+function createLeaderBoard($database) {
+    $sql = 
+    "SELECT accounts.puuid, accounts.name, COUNT(accountschampions.puuid) AS Total
+    FROM accounts
+    LEFT JOIN accountschampions ON accounts.puuid = accountschampions.puuid
+    GROUP BY accounts.puuid,accounts.name
+    ORDER BY Total DESC
+    LIMIT 4";
+    $leaderBoard = $database->query($sql);
+    $createdLeaderBoard = [];
+    while($row = mysqli_fetch_array($leaderBoard)) {
+        $name = $row['name'];
+        $total = $row['Total'];
+        $createdLeaderBoard[] = !empty($row) ? $row : '';
+        echo "$name: $total </br>";
+    }
+    return $createdLeaderBoard;
+}
 // END FUNCTIONS
 //-------------------------------------------------------------------------------------
 //Set DB
@@ -176,9 +189,12 @@ function getAccount($database, $name) {
 //-------------------------------------------------------------------------------------
 if (isset($_POST['action'])) {
     $database = establishDBConnection();
+    if ($_POST['action'] === 'createLeaderBoard') {
+        return createLeaderBoard($database);
+    }
     $name = !empty($_POST["name"]) ? $_POST["name"] : '';
     $tagLine = !empty($_POST["tagLine"]) ? $_POST["tagLine"] : '';
-    if ($name != '') {
+    if ($name != '' ) {
         $account = getAccount($database, $name);
         if (!empty($account['name'])) {
             $summonerPUUID = $account['puuid'];
@@ -206,11 +222,11 @@ function queryMatches($database, $summonerPUUID) {
 }
 
 function getMatchInfo($database, $summonerPUUID, $name) {
-    $matchResult = mysqli_query($database, "SELECT * FROM matches WHERE puuid = '$summonerPUUID' ORDER BY matchID");
-    $matchResultRow = $matchResult->fetch_assoc();
+    $matchResult = mysqli_query($database, "SELECT * FROM matches WHERE puuid = '$summonerPUUID' AND ranQuery = '0' ORDER BY matchID");
     $matchIDs = [];
+    echo 'Fetching '.mysqli_num_rows($matchResult).' number of matches. Querying each at 0.65 seconds';
     while($row = mysqli_fetch_array($matchResult)) {
-        $matchIDs[] = !empty($row['matchID']) ? $row['matchID'] : '';
+        $matchIDs[] = !empty($row) ? $row : '';
     }
     queryMatchsHistoryInfo($database, $matchIDs, $summonerPUUID);
     exit;

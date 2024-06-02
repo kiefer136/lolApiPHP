@@ -5,65 +5,116 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Aviators API</title>
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="css/magnific-popup.css">
+    <link rel="stylesheet" href="css/tooplate-vertex.css">
     <script src="jquery.js"></script>
     <script src="custom-js.js"></script>
-    <!-- <link rel="stylesheet" href="./style.css"> -->
-    <!-- <link rel="icon" href="./favicon.ico" type="image/x-icon"> -->
+    <script src="plugins.js"></script>
     <style>
-      body {
-        background: url("ArenaStart.jpg");
-        background-size: cover;
-      }
-      h1 {
-        margin-top: 0;
-      }
-      h4 {
-        margin: 5px;
-      }
-      .main-box {
+      /* .main-box {
         max-width: 80%;
         margin: 0 auto;
-        background: rgb(192, 191, 191);
         padding: 30px 60px;
-      }
+      } */
       input {
-        margin: 7px 0;
-      }
-      br {
-        height: 0;
+        margin: 15px 0;
       }
       #summonerInfo {
-        background: white;
+        background: rgb(22, 22, 22);
         padding: 5px;
+      }
+      h1, h2, h3, h4 {
+        color: #99CC99;
+      }
+      .teemo-png {
+        max-height: 150px;
+      }
+      .button {
+        cursor: pointer;
+      }
+      #summonerInfo h4 {
+        margin-bottom: 5px!important;
+        margin-top: 5px!important;
       }
     </style>
   </head>
   <body>
+    <div class="tm-brand">
+        <h3 >LeaderBoards</h3>   
+        <span class="" id="leaderBoard"></span>      
+    </div>
     <main>
-      <div class="main-box">
-          <h1>Sup ya'll.</h1>  
-          <p>Search for your champions you placed first in arena with</p>
-          <p>INSTRUCTIONS</p>
-          <ul>
-            <li>Enter summoner name and tagLine(First time only). Click getChampions</li>
-            <li>After finished loading, Click queryMatches</li>
-            <li>After finished loading, Click queryMatchInfo</li>
-            <li>To check existing data, only enter summoner name, and click/enter getChampions</li>
-          </ul>
-          <form action="api.php" method="POST">
-            Summoner Name: <input type="text" id="name" name="name"><br>
-            TagLine: <input type="text" id="tagLine" name="tagLine"><br>
-            <input type="submit" class="button" name="getChampions" value="getChampions"><br>
-            <!-- <input type="submit" class="button" name="summonerLookup" value="summonerLookup"><br> -->
-            <input type="submit" class="button" name="queryMatches" value="queryMatches" />
-            <input type="submit" class="button" name="queryMatchInfo" value="queryMatchInfo" /><br> 
-          </form>
-          <div id="summonerInfo">
-
-          </div>
-          <div id="outputInfo"">
-          </div>
+      <div id="intro" class="tm-section">
+        <!-- Intro left -->
+        <div class="tm-section-col tm-content">
+            <div class="tm-media">
+                <div class="tm-media-body">
+                  <div class="main-box">
+                    <h1 class="tm-text-primary">Sup ya'll.</h1>  
+                    <p>Search for your champions you placed first in arena with</p>
+                    <p>INSTRUCTIONS</p>
+                    <ul>
+                      <li>Enter summoner name and tagLine(First time only). Click getChampions</li>
+                      <li>After finished loading, Click queryMatches</li>
+                      <li>After finished loading, Click queryMatchInfo</li>
+                      <li>To check existing data, only enter summoner name, and click/enter getChampions</li>
+                    </ul>
+                    <p>NOTE: Query Match Info can take up to 3 minutes. After its finished, you may need to re-run it again to get the rest of your matches.</p>
+                    <p>Matches will be marked as 'QUERIED', and will not be ran again to speed up existing querys</p>
+                    <form action="api.php" method="POST">
+                      Summoner Name: <input type="text" id="name" name="name"><br>
+                      TagLine: <input type="text" id="tagLine" name="tagLine"><br>
+                      <input type="submit" class="button tm-btn tm-btn-next" name="getChampions" value="getChampions"><br>
+                      <!-- <input type="submit" class="button" name="summonerLookup" value="summonerLookup"><br> -->
+                      <input type="submit" class="button tm-btn tm-btn-next" name="queryMatches" value="queryMatches" />
+                      <input type="submit" class="button tm-btn tm-btn-next" name="queryMatchInfo" value="queryMatchInfo" /><br> 
+                    </form>
+                    <div id="summonerInfo">
+          
+                    </div>
+                    <div id="outputInfo"">
+                    </div>
+                </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- Intro right -->
+        <div class="tm-section-col tm-parallax" data-parallax="scroll" data-image-src="ArenaStart.jpg"></div>
+    </div> <!-- #intro -->
+    <div id="services" class="tm-section">
+      <!-- Services left -->
+      <div class="tm-section-col tm-content">
+          <h2 class="tm-text-primary">Errors</h2>
+          <p>If you are not able to get new results, chances are the <strong>API Key</strong> has expired and you need to get me to renew it.</p>
+          <hr class="tm-hr tm-ml tm-sm-mt-30">
+          <div class="tm-row">
+              <div class="tm-col">
+                  <div class="tm-text-center tm-my-50">
+                      <img class="teemo-png" src="teemopng12.png"></i>
+                  </div>                        
+                  <p>
+                      Never underestimate the power of the scouts code
+                  </p>
+              </div>
+              <div class="tm-col">
+                  <div class="tm-text-center tm-my-50">
+                    <img class="teemo-png" src="teemopng123.png"></i>
+                  </div>                        
+                  <p>
+                      Snitches get stitches - Teemo
+                  </p>
+              </div>
+          </div>                
       </div>
+      
+      <!-- Services right -->
+      <div class="tm-section-col tm-parallax" data-parallax="scroll" data-image-src="arenapic.jpg"></div>
+  </div> <!-- #services -->
     </main>
   </body>
 </html>

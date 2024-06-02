@@ -1,4 +1,12 @@
 $(document).ready(function(){
+    var ajaxurl = 'api.php', data =  {
+        'action': 'createLeaderBoard',
+    };
+    $.post(ajaxurl, data, function (response) {
+        console.log(response);  
+        $('#leaderBoard').html(response);
+    });
+    
     $('.button').click(function(e){
         e.preventDefault();
         var button =  $(this);
@@ -12,7 +20,7 @@ $(document).ready(function(){
             'name': formNameVal,
             'tagLine': formTagLineVal
         };
-        $('#summonerInfo').html("<img src='teemoLoad.gif'/><h3>Loading...</h3>");
+        $('#summonerInfo').html("<img src='teemoLoad.gif'/><h3>Loading...</h3>"); 
         setTimeout(() => {
             $.post(ajaxurl, data, function (response) {
                 button.attr("disabled", false);
