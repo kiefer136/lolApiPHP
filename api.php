@@ -26,7 +26,7 @@ function establishDBConnection() {
         $db = new PDO($conn, $fields["user"], $fields["pass"]);
         $stmt = $db->query("SELECT VERSION()");
         print($stmt->fetch()[0]);
-        return $stmt;
+        return $db;
     } catch (Exception $e) {
         echo "Error: " . $e->getMessage();
     }
