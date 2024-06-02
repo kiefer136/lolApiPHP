@@ -22,15 +22,11 @@ function establishDBConnection() {
     $conn .= ";dbname=lolchallenges";
     $conn .= ";sslmode=verify-ca;sslrootcert=ca.pem";
 
-    try {
-        $db = new PDO($conn, $fields["user"], $fields["pass"]);
-        $stmt = $db->query("SELECT VERSION()");
-        print($stmt->fetch()[0]);
-        return $db;
-    } catch (Exception $e) {
-        echo "Error: " . $e->getMessage();
-    }
-    // var_dump($connect);
+    $db = new PDO($conn, $fields["user"], $fields["pass"]);
+    $stmt = $db->query("SELECT VERSION()");
+    print($stmt->fetch()[0]);
+    var_dump($db);
+    return $db;
 }
 
 // Make request to RIOTAPI with url
