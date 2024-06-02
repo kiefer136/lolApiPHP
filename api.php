@@ -1,6 +1,8 @@
 <?php
-// Set up connection to local database
 
+//START FUNCTIONS
+//-------------------------------------------------------------------------------------
+// Set up connection to local database
 function establishDBConnection() {
     $connect = mysqli_connect("localhost:3306", "root", "", "lolchallenges");
 
@@ -9,7 +11,7 @@ function establishDBConnection() {
 
 // Make request to RIOTAPI with url
 function CallAPI($url) {
-    $apiKey = "RGAPI-9f02ea6d-2857-421c-a514-62839886ef88";
+    $apiKey = "RGAPI-101c74a1-4b7c-419c-96e0-49d1199a3cfe";
     $cURLConnection = curl_init();
 
     echo "Requesting URL: ".$url;
@@ -58,16 +60,15 @@ function lookupAndSaveAccount($database, $name, $tagLine) {
     }
 }
 // Look up match history based on timeline
-function queryMatchHistory($database, $puuid) {
-    $days = 1;
-    $endDay = ($days + 1);
+function queryMatchHistory($database, $puuid, $startStart, $endTime, $maxDays) {
+    $days = $startStart;
+    $endDay = ($endTime + 1);
+    $days = 0 ? "-$days" : "$days";
 
-    while($days < 30) {
-        var_dump($days);
-        $days++;
+    while($days < $maxDays) {
         $currentDate = strtotime("now -$days days");
         $yesterday = strtotime("-$endDay days", $currentDate);
-    
+        $days++;
         usleep(250000);
         $baseUrl = "https://americas.api.riotgames.com/";
         $route = "lol/match/v5/matches/by-puuid/$puuid/ids?startTime=$yesterday&endTime=$currentDate&count=20";
@@ -80,14 +81,14 @@ function queryMatchHistory($database, $puuid) {
             foreach ($api_result as $match) {
                 $id = $match;
                 $sqlInsert = "INSERT IGNORE INTO matches (puuid, matchID) VALUES ('$puuid', '$id')";
-                echo "inserting $id ....";
+                echo "inserting $id ....</br>";
                 $database->query($sqlInsert);
             }
         } else {
             echo "Is not Array";
         }
 
-        if ($days > 100) {
+        if ($days > 40) {
             exit;
         }
     }
@@ -96,16 +97,17 @@ function queryMatchHistory($database, $puuid) {
 
 // Retrieve match info from match id
 function queryMatchsHistoryInfo($database, $matchIDs, $summonerPUUID) {
-
     $baseUrl = "https://americas.api.riotgames.com/";
-    
+    $count = 1;
     foreach($matchIDs as $matchID) {
+        echo $matchID;
+        if ($count > 400) {
+            exit();
+        }
         $route = "lol/match/v5/matches/$matchID";
         $requestAccountUrl = $baseUrl.$route;
-
         $api_result = CallAPI($requestAccountUrl);
-        echo 'sleep';
-        usleep(250000);
+        usleep(650000);
         if (!empty(($api_result->info))) {
             $obj = array_column($api_result->info->participants, null, 'puuid')[$summonerPUUID] ?? false;
             $placement = $obj->placement ? $obj->placement : 0;
@@ -117,9 +119,10 @@ function queryMatchsHistoryInfo($database, $matchIDs, $summonerPUUID) {
                 $database->query($sqlInsert);
             }
         }
+        $count++;
     }
 }
-//
+// Get summoners list of champions placed first in arena by summoner name
 function getSummonerChampionsByName($name, $database) {
     $sqlInsert = 
     "SELECT * 
@@ -134,40 +137,79 @@ function getSummonerChampionsByName($name, $database) {
     }
     return $champss;
 }
-
-$database = establishDBConnection();
-$name = "Aviator";
-$tagLine = "";
+//GET ACCOUNT
+function getAccount($database, $name) {
+    $result = mysqli_query($database, "SELECT puuid, name FROM accounts WHERE name = '$name' LIMIT 20");
+    $resultRow = $result->fetch_assoc();
+    if ($resultRow) {
+        return ['puuid'=>$resultRow['puuid'], 'name'=>$resultRow['name']];
+    }
+}
+// END FUNCTIONS
+//-------------------------------------------------------------------------------------
+//Set DB
 //Clean name string before requesting
 // $name = str_replace(' ', '', $name);
-
-// lookupAndSaveAccount($database, $name, $tagLine);
-
 //-------------------------------------------------------------------------------------
-$result = mysqli_query($database, "SELECT puuid, name FROM accounts WHERE name = '$name' LIMIT 20");
-$resultRow = $result->fetch_assoc();
-if ($resultRow) {
-    echo 'Puuid: '.$resultRow['puuid'].'</br>';
-    echo 'Summoner Name: '.$resultRow['name'].'</br>';
-}
-$summonerPUUID = $resultRow['puuid'];
-//
-$matchResult = mysqli_query($database, "SELECT * FROM matches WHERE puuid = '$summonerPUUID' ORDER BY matchID");
-$matchResultRow = $matchResult->fetch_assoc();
-$matchIDs = [];
-while($row = mysqli_fetch_array($matchResult)) {
-    $matchIDs[] = !empty($row['matchID']) ? $row['matchID'] : '';
-}
-// var_dump($matchResultRow);
-// $matchListId = $matchResultRow;
 
-// var_dump($matchId);
-// queryMatchHistory($database, $summonerPUUID);
-// queryMatchsHistoryInfo($database, $matchIDs, $summonerPUUID);
+// PHP AJAX
 //-------------------------------------------------------------------------------------
-$champs = getSummonerChampionsByName($_POST["name"], $database);
-echo 'Placed first with '.count($champs).' total champions </br>';
-foreach ($champs as $champ) {
-    echo $champ.'</br>';
+if (isset($_POST['action'])) {
+    $database = establishDBConnection();
+    $name = !empty($_POST["name"]) ? $_POST["name"] : '';
+    $tagLine = !empty($_POST["tagLine"]) ? $_POST["tagLine"] : '';
+    if ($name != '') {
+        $account = getAccount($database, $name);
+        if (!empty($account['name'])) {
+            $summonerPUUID = $account['puuid'];
+            echo "<h4>Summoner Puuid: ".$summonerPUUID."</h4>".'</br>'."<h4>Summoner Name: ".$account['name'].'</h4></br>';
+            switch ($_POST['action']) {
+                case 'queryMatches':
+                    return queryMatches($database, $summonerPUUID);
+                    break;
+                case 'getChampions':
+                    return getChampions($name, $database);
+                case 'queryMatchInfo':
+                    return getMatchInfo($database, $summonerPUUID, $name);
+            }
+        } else {
+            return summonerLookup($database, $name, $tagLine);
+        }
+    } else {
+        echo "Missing Name";
+    }
+}
+
+function queryMatches($database, $summonerPUUID) {
+    queryMatchHistory($database, $summonerPUUID, "0", "1", 40);;
+    exit;
+}
+
+function getMatchInfo($database, $summonerPUUID, $name) {
+    $matchResult = mysqli_query($database, "SELECT * FROM matches WHERE puuid = '$summonerPUUID' ORDER BY matchID");
+    $matchResultRow = $matchResult->fetch_assoc();
+    $matchIDs = [];
+    while($row = mysqli_fetch_array($matchResult)) {
+        $matchIDs[] = !empty($row['matchID']) ? $row['matchID'] : '';
+    }
+    queryMatchsHistoryInfo($database, $matchIDs, $summonerPUUID);
+    exit;
+}
+
+function getChampions($name, $database) {
+    $champs = getSummonerChampionsByName($name, $database);
+    echo 'Placed first with '.count($champs).' total champions </br>';
+    foreach ($champs as $champ) {
+        echo $champ.'</br>';
+    }
+}
+
+function summonerLookup($database,$name, $tagLine) {
+    if ($name === '' || $tagLine === '') {
+        echo '<p>Summoner not known, or missing name / tagLine</p>';
+    } else {
+        lookupAndSaveAccount($database, $name, $tagLine);
+    }
+    exit;
 }
 ?>

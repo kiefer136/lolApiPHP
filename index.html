@@ -4,18 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>My Website</title>
+    <title>Aviators API</title>
+    <script src="jquery.js"></script>
+    <script src="custom-js.js"></script>
     <!-- <link rel="stylesheet" href="./style.css"> -->
     <!-- <link rel="icon" href="./favicon.ico" type="image/x-icon"> -->
+    <style>
+      body {
+        background: url("ArenaStart.jpg");
+        background-size: cover;
+      }
+      h1 {
+        margin-top: 0;
+      }
+      h4 {
+        margin: 5px;
+      }
+      .main-box {
+        max-width: 80%;
+        margin: 0 auto;
+        background: rgb(192, 191, 191);
+        padding: 30px 60px;
+      }
+      input {
+        margin: 7px 0;
+      }
+      br {
+        height: 0;
+      }
+      #summonerInfo {
+        background: white;
+        padding: 5px;
+      }
+    </style>
   </head>
   <body>
     <main>
-        <h1>Sup ya'll.</h1>  
-        <form action="api.php" method="POST">
-          Summoner Name: <input type="text" name="name"><br>
-          TagLine: <input type="text" name="tagLine"><br>
-          <input type="submit">
+      <div class="main-box">
+          <h1>Sup ya'll.</h1>  
+          <p>Search for your champions you placed first in arena with</p>
+          <p>INSTRUCTIONS</p>
+          <ul>
+            <li>Enter summoner name and tagLine(First time only). Click getChampions</li>
+            <li>After finished loading, Click queryMatches</li>
+            <li>After finished loading, Click queryMatchInfo</li>
+            <li>To check existing data, only enter summoner name, and click/enter getChampions</li>
+          </ul>
+          <form action="api.php" method="POST">
+            Summoner Name: <input type="text" id="name" name="name"><br>
+            TagLine: <input type="text" id="tagLine" name="tagLine"><br>
+            <input type="submit" class="button" name="getChampions" value="getChampions"><br>
+            <!-- <input type="submit" class="button" name="summonerLookup" value="summonerLookup"><br> -->
+            <input type="submit" class="button" name="queryMatches" value="queryMatches" />
+            <input type="submit" class="button" name="queryMatchInfo" value="queryMatchInfo" /><br> 
           </form>
+          <div id="summonerInfo">
+
+          </div>
+          <div id="outputInfo"">
+          </div>
+      </div>
     </main>
 	<script src="index.js"></script>
   </body>
