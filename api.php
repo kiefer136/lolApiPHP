@@ -4,7 +4,13 @@
 //-------------------------------------------------------------------------------------
 // Set up connection to local database
 function establishDBConnection() {
-    $connect = mysqli_connect("dpg-cpe2jd7109ks73eom1k0-a", "rlolchallenges_useroot", "sVJRM5Vdc0mkV8jAomNi7wb4EHcBdd2m", "lolchallenges", 5432);
+    $connect = mysqli_connect(
+        "postgres://lolchallenges_user:sVJRM5Vdc0mkV8jAomNi7wb4EHcBdd2m@dpg-cpe2jd7109ks73eom1k0-a/lolchallenges", 
+        "rlolchallenges_useroot", 
+        "sVJRM5Vdc0mkV8jAomNi7wb4EHcBdd2m", 
+        "lolchallenges", 
+        5432
+    );
 
     return $connect;
 }
@@ -171,6 +177,8 @@ if (isset($_POST['action'])) {
                     return getChampions($name, $database);
                 case 'queryMatchInfo':
                     return getMatchInfo($database, $summonerPUUID, $name);
+                case 'setDbStructure':
+                    setDbStructure($database);
             }
         } else {
             return summonerLookup($database, $name, $tagLine);
@@ -211,5 +219,34 @@ function summonerLookup($database,$name, $tagLine) {
         lookupAndSaveAccount($database, $name, $tagLine);
     }
     exit;
+}
+function setDbStructure($database) {
+    mysqli_query($database,  
+    "DROP TABLE IF EXISTS `accounts`;
+    CREATE TABLE IF NOT EXISTS `accounts` (
+      `puuid` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+      `name` varchar(30) DEFAULT NULL,
+      `tagLine` varchar(10) DEFAULT NULL,
+      PRIMARY KEY (`puuid`)
+    ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;");
+    
+    mysqli_query($database, 
+    "DROP TABLE IF EXISTS `accountschampions`;
+    CREATE TABLE IF NOT EXISTS `accountschampions` (
+      `championName` varchar(30) NOT NULL,
+      `puuid` varchar(80) NOT NULL,
+      PRIMARY KEY (`championName`,`puuid`)
+    ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;"
+    );
+    
+    mysqli_query($database,
+    "DROP TABLE IF EXISTS `matches`;
+    CREATE TABLE IF NOT EXISTS `matches` (
+      `puuid` varchar(80) NOT NULL,
+      `matchID` varchar(60) NOT NULL,
+      PRIMARY KEY (`matchID`,`puuid`)
+    ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+    COMMIT;"
+    );
 }
 ?>
