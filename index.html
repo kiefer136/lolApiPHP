@@ -22,9 +22,37 @@
       input {
         margin: 15px 0;
       }
+      .teemo-dancing {
+        position: fixed;
+        bottom: 0;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 3;
+      }
+      .teemo-dancing.hidden {
+        display: none;
+      }
+      .teemo-dancing-wrap {
+        text-align: center;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+      }
+      .loading-text {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+      }
+      .mg-bottom-70 {
+        margin-bottom: 70px;
+      }
       #summonerInfo {
         background: rgb(22, 22, 22);
-        padding: 5px;
+        padding: 10px;
       }
       h1, h2, h3, h4 {
         color: #99CC99;
@@ -39,6 +67,73 @@
         margin-bottom: 5px!important;
         margin-top: 5px!important;
       }
+      .flex {
+        display: flex;
+        flex-flow: row wrap;
+      }
+      .flex .flex-item {
+        flex-basis: 100%;
+      }
+      .flex .flex-item p {
+        margin: 0;
+      }
+      .flex .flex-item-fifty {
+        flex-basis: 50%;
+      }
+      .tm-btn-main {
+        color: rgb(0, 199, 0);
+        border: 1px solid rgb(0, 199, 0);
+      }
+      .tm-btn-secondary {
+        color: rgb(173, 2, 235);
+        border: 1px solid rgb(173, 2, 235);
+      }
+      .tm-btn-colored {
+        color :#a491ff;
+        border: 1px solid #a491ff;
+      }
+      input[type=text], select {
+        width: 200px;
+        padding: 12px 20px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      .input-fields {
+        display: flex;
+        padding: 15px 0;
+      }
+      .tagline-field {
+        padding: 0 10px;
+      }
+      input:disabled,
+      input[disabled]{
+        border: 1px solid #999999;
+        color: #666666;
+      }
+      .champion-pool {
+        display: flex;
+        flex-flow: row wrap;
+        margin-top: 30px;
+      }
+      .won-champion {
+        display: flex;
+        flex-basis: 33%;
+        padding: 5px 0;
+      }
+      .won-champion img {
+        width: 40px;
+        height: 40px;
+        margin-right: 10px;
+      }
+      .won-champion span {
+        align-self: center;
+      }
+      .blur-page {
+        filter: blur(5px);
+      }
     </style>
   </head>
   <body>
@@ -46,36 +141,60 @@
         <h3 >LeaderBoards</h3>   
         <span class="" id="leaderBoard"></span>      
     </div>
-    <main>
+    <div class="teemo-dancing hidden">
+      <div class="teemo-dancing-wrap">
+        <img src='teemoLoad.gif'/>
+        <h2 class="loading-text">Loading...</h2>
+      </div>
+    </div>
+    <main class="main-page-div">
       <div id="intro" class="tm-section">
         <!-- Intro left -->
         <div class="tm-section-col tm-content">
-            <div class="tm-media">
+            <div class="mg-bottom-70">
                 <div class="tm-media-body">
                   <div class="main-box">
                     <h1 class="tm-text-primary">Sup ya'll.</h1>  
                     <p>Search for your champions you placed first in arena with</p>
-                    <p>INSTRUCTIONS</p>
-                    <ul>
-                      <li>Enter summoner name and tagLine(First time only). Click getChampions</li>
-                      <li>After finished loading, Click queryMatches</li>
-                      <li>After finished loading, Click queryMatchInfo</li>
-                      <li>To check existing data, only enter summoner name, and click/enter getChampions</li>
-                    </ul>
-                    <p>NOTE: Query Match Info can take up to 3 minutes. After its finished, you may need to re-run it again to get the rest of your matches.</p>
-                    <p>Matches will be marked as 'QUERIED', and will not be ran again to speed up existing querys</p>
+                    <p>NOTE: Query Match Info can take up to 5 minutes. After its finished, you may need to re-run it again to get the rest of your matches. A refresh may also be needed</p>
                     <form action="api.php" method="POST">
-                      Summoner Name: <input type="text" id="name" name="name"><br>
-                      TagLine: <input type="text" id="tagLine" name="tagLine"><br>
-                      <input type="submit" class="button tm-btn tm-btn-next" name="getChampions" value="getChampions"><br>
-                      <!-- <input type="submit" class="button" name="summonerLookup" value="summonerLookup"><br> -->
-                      <input type="submit" class="button tm-btn tm-btn-next" name="queryMatches" value="queryMatches" />
-                      <input type="submit" class="button tm-btn tm-btn-next" name="queryMatchInfo" value="queryMatchInfo" /><br> 
+                      <div class="input-fields">
+                        <div>
+                          <label for="name">Summoner Name: </label>
+                          <input type="text" id="name" name="name" placeholder='Summoner Name "Teemo"'><br>
+                        </div>
+                        <div class="tagline-field">
+                          <label for="tagLine">TagLine: </label>
+                          <input type="text" id="tagLine" name="tagLine" placeholder='Tag Line "NA1"'><br>
+                        </div>
+                      </div>
+                      <div class="flex">
+                        <div class="flex-item flex-item-fifty">
+                          <hr class="tm-hr tm-ml tm-sm-mt-30">
+                          <p><strong class="tm-text-primary">1.</strong> Get Champions gives you a list of previously queried champions</p>
+                          <input type="submit" class="button tm-btn tm-btn-next tm-btn-main" name="getChampions" value="getChampions"/><br>
+                          <hr class="tm-hr tm-ml tm-sm-mt-30">
+                        </div>
+                        <div class="flex-item flex-item-fifty">
+                          <hr class="tm-hr tm-ml tm-sm-mt-30">
+                          <p>Get Match history for TODAY ONLY (30s) (Button 2 & 3 combined)</p>
+                          <input type="submit" class="button tm-btn tm-btn-next tm-btn-secondary" name="getRecentMatches" value="getRecentMatches"/><br>
+                          <hr class="tm-hr tm-ml tm-sm-mt-30">
+                        </div>  
+                        <div class="flex-item">
+                          <p><strong class="tm-text-primary">2.</strong> Get match history from last month. (Slow 30s-1m)</p>
+                          <input type="submit" class="button tm-btn tm-btn-next tm-btn-colored" name="queryMatches" value="queryMatches" />
+                        </div>
+                        <div>
+                          <p><strong class="tm-text-primary">3.</strong> Get first place champions from match history that is queried in previous button (Very Slow 5m+)</p>
+                          <input type="submit" class="button tm-btn tm-btn-next tm-btn-colored" name="queryMatchInfo" value="queryMatchInfo" /><br>
+                        </div>
+                      </div>
                     </form>
                     <div id="summonerInfo">
           
                     </div>
-                    <div id="outputInfo"">
+                    <div id="outputInfo">
                     </div>
                 </div>
                 </div>

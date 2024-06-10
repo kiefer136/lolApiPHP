@@ -1,29 +1,32 @@
 $(document).ready(function(){
-    var ajaxurl = 'api.php', data =  {
+    var ajaxurl1 = 'api.php', data1 =  {
         'action': 'createLeaderBoard',
+        'type': 'POST'
     };
-    $.post(ajaxurl, data, function (response) {
-        console.log(response);  
-        $('#leaderBoard').html(response);
+    $.post(ajaxurl1, data1, function (res) {
+        console.log(res);  
+        $('#leaderBoard').html(res);
     });
-    
     $('.button').click(function(e){
         e.preventDefault();
-        var button =  $(this);
+        $('.teemo-dancing').removeClass('hidden');
+        $('.main-page-div').addClass('blur-page');
         var clickBtnValue = $(this).val();
         var formNameVal = $("#name").val();
         var formTagLineVal = $("#tagLine").val();
-        button.attr("disabled", true);
+        $('.button').attr("disabled", true);
         var ajaxurl = 'api.php',
         data =  {
             'action': clickBtnValue,
             'name': formNameVal,
-            'tagLine': formTagLineVal
+            'tagLine': formTagLineVal,
+            'type': 'POST'
         };
-        $('#summonerInfo').html("<img src='teemoLoad.gif'/><h3>Loading...</h3>"); 
         setTimeout(() => {
             $.post(ajaxurl, data, function (response) {
-                button.attr("disabled", false);
+                $('.teemo-dancing').addClass('hidden');
+                $('.main-page-div').removeClass('blur-page');
+                $('.button').attr("disabled", false);
                 console.log(response);  
                 $('#summonerInfo').html(response);
             });
